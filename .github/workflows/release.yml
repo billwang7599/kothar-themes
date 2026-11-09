@@ -1,0 +1,20 @@
+# Push a tag like v1.2.0 and this publishes every theme in themes/ as an asset of that release. Kothar installs
+# <id>.json from the latest release.
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/check.mjs
+      - run: gh release create "$GITHUB_REF_NAME" themes/*.json --title "$GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
